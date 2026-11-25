@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AgriSmart | Crop Price Advisor</title>
+<style>
+:root{--green:#176b43;--light:#eef7f0;--ink:#183126;--muted:#687a70;--line:#e1e9e3}
+*{box-sizing:border-box}body{margin:0;background:#f5f8f5;color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{background:linear-gradient(120deg,#145c3a,#278456);color:white;padding:28px max(20px,calc((100% - 1100px)/2))}
+header h1{margin:0;font-size:clamp(24px,4vw,36px)}header p{margin:6px 0 0;color:#e0f2e6}
+main{max-width:1100px;margin:24px auto;padding:0 18px}.top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+select,input{font:inherit;border:1px solid #cbd8ce;border-radius:10px;padding:10px 12px;background:white;color:var(--ink)}
+.tag{background:#dff3e5;color:#176b43;border-radius:999px;padding:6px 11px;font-size:13px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 2px 8px #173c2610}
+.label{color:var(--muted);font-size:13px}.value{font-size:clamp(22px,3vw,30px);font-weight:750;margin:5px 0}.sub{color:var(--muted);font-size:13px}
+section{margin-top:16px}.section-title{font-size:20px;margin:0 0 12px}
+.columns{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line)}th{font-size:13px;color:var(--muted)}
+.best{color:var(--green);font-weight:700}.bar{height:9px;background:#e9f0eb;border-radius:20px;overflow:hidden;margin-top:7px}.bar span{display:block;height:100%;background:#45a36d;border-radius:20px}
+.chart{display:flex;align-items:end;gap:10px;height:180px;padding:14px 5px 0;border-bottom:1px solid var(--line)}
+.barcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:end;height:100%;gap:6px;font-size:11px;color:var(--muted)}
+.barcol i{display:block;width:100%;max-width:44px;background:#79b995;border-radius:7px 7px 0 0;min-height:5px}
+.barcol:last-child i{background:#176b43}.advice{background:var(--light);border-color:#cfe7d5}
+input[type=range]{width:100%;padding:0;accent-color:var(--green)}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:28px 18px}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.columns{grid-template-columns:1fr}}
+@media(max-width:430px){.grid{grid-template-columns:1fr}.value{font-size:25px}}
+</style>
+</head>
+<body>
+<header><h1>🌱 AgriSmart</h1><p>Smart Crop Price Forecasting & Best-Market Advisor for Farmers</p></header>
+<main>
+<div class="top">
+<div><strong>Farmer Dashboard</strong><div class="sub">Chennai region · Demo market data</div></div>
+<div><label for="crop">Choose crop </label> <select id="crop">
+<option>Tomato</option><option>Onion</option><option>Potato</option><option>Rice</option>
+</select></div>
+<span class="tag">Project Prototype</span>
+</div>
+<div class="grid">
+<div class="card"><div class="label">Current market price</div><div class="value" id="current">₹1,800</div><div class="sub">per quintal</div></div>
+<div class="card"><div class="label">Predicted price</div><div class="value" id="forecast">₹2,100</div><div class="sub" id="change">Expected increase</div></div>
+<div class="card"><div class="label">Best sample market</div><div class="value" id="best">Koyambedu</div><div class="sub">Highest listed price</div></div>
+<div class="card"><div class="label">Estimated revenue</div><div class="value" id="revenue">₹2,100</div><div class="sub" id="quantityLabel">For 100 kg</div></div>
+</div>
+<section class="columns">
+<div class="card">
+<h2 class="section-title">Recent prices & forecast</h2><div class="sub">Illustrative price trend · ₹ per quintal</div>
+<div class="chart" id="chart"></div>
+<div class="sub" style="margin-top:10px">Last bar shows the sample forecast.</div>
+</div>
+<div class="card">
+<h2 class="section-title">Market comparison</h2><div class="sub">Sample prices · ₹ per quintal</div>
+<table><thead><tr><th>Market</th><th>Price</th></tr></thead><tbody id="markets"></tbody></table>
+</div>
+</section>
+<section class="columns">
+<div class="card">
+<h2 class="section-title">Revenue estimator</h2>
+<label for="qty">Crop quantity: <strong id="qtyText">100 kg</strong></label>
+<input id="qty" type="range" min="100" max="5000" step="100" value="100">
+<div class="sub">Revenue estimate uses the forecast price, before transport, commission and other costs.</div>
+</div>
+<div class="card advice">
+<h2 class="section-title">💡 Smart recommendation</h2>
+<p id="recommendation">Based on sample data, consider selling at Koyambedu. Check live prices and transport costs before deciding.</p>
+</div>
+</section>
+<p class="sub" style="margin-top:16px">Important: This is a student project prototype with illustrative data. It is not connected to live market feeds and does not use a trained machine-learning model.</p>
+</main>
+<footer>AgriSmart · Smart Agriculture Project</footer>
+<script>
+const data={
+Tomato:{current:1800,forecast:2100,change:16.7,history:[1200,1350,1280,1500,1600,1800],markets:[["Koyambedu",2100],["Thiruvallur",1950],["Chennai",1850],["Villupuram",1750]]},
+Onion:{current:2400,forecast:2600,change:8.3,history:[1900,2000,2100,2250,2300,2400],markets:[["Koyambedu",2600],["Thiruvallur",2450],["Chennai",2300],["Villupuram",2200]]},
+Potato:{current:1600,forecast:1750,change:9.4,history:[1200,1300,1400,1350,1500,1600],markets:[["Koyambedu",1750],["Thiruvallur",1680],["Chennai",1550],["Villupuram",1500]]},
+Rice:{current:2800,forecast:2900,change:3.6,history:[2500,2600,2550,2700,2750,2800],markets:[["Koyambedu",2900],["Thiruvallur",2850],["Chennai",2750],["Villupuram",2700]]}
+};
+const money=n=>"₹"+Math.round(n).toLocaleString("en-IN");
+function update(){
+ const crop=document.getElementById("crop").value,d=data[crop],qty=+document.getElementById("qty").value,best=d.markets[0];
+ document.getElementById("current").textContent=money(d.current);
+ document.getElementById("forecast").textContent=money(d.forecast);
+ document.getElementById("change").textContent="↑ "+d.change+"% sample forecast";
+ document.getElementById("best").textContent=best[0];
+ document.getElementById("revenue").textContent=money(qty*d.forecast/100);
+ document.getElementById("quantityLabel").textContent="For "+qty.toLocaleString("en-IN")+" kg";
+ document.getElementById("qtyText").textContent=qty.toLocaleString("en-IN")+" kg";
+ document.getElementById("recommendation").textContent="Based on sample data, "+best[0]+" has the highest listed price for "+crop+". Check live prices and transport costs before deciding.";
+ const values=[...d.history,d.forecast],max=Math.max(...values);
+ document.getElementById("chart").innerHTML=values.map((v,i)=>`<div class="barcol"><span>${money(v)}</span><i style="height:${Math.max(5,v/max*68)}%"></i><span>${i===6?"Forecast":"W"+(i+1)}</span></div>`).join("");
+ document.getElementById("markets").innerHTML=d.markets.map((m,i)=>`<tr><td class="${i===0?"best":""}">${m[0]} ${i===0?"★":""}<div class="bar"><span style="width:${m[1]/best[1]*100}%"></span></div></td><td class="${i===0?"best":""}">${money(m[1])}</td></tr>`).join("");
+}
+document.getElementById("crop").addEventListener("change",update);
+document.getElementById("qty").addEventListener("input",update);
+update();
+</script>
+</body></html>
